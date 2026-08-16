@@ -1,7 +1,11 @@
 const express = require('express');
 const app = express();
 
-app.use(express.json({ limit: '1mb', strict: false }));
+app.use(express.json({
+  limit: '1mb',
+  strict: false,
+  type: () => true // parse body as JSON regardless of Content-Type header
+}));
 
 const ALLOWED_HOSTS = new Set(['cdn-czr780h.example', 'app-2hpuc68.example']);
 const VALID_CHANNELS = new Set(['html', 'markdown', 'url', 'sql', 'shell']);
@@ -31,7 +35,7 @@ function percentDecode(str) {
 
 function htmlEntityDecode(str) {
   return str
-    .replace(/&#x([0-9A-Fa-f]+);/g, (_, hex) => {
+    .replace(/&#x([0-9A-Fa-f]+);/gi, (_, hex) => {
       try { return String.fromCodePoint(parseInt(hex, 16)); } catch { return _; }
     })
     .replace(/&#(\d+);/g, (_, dec) => {
